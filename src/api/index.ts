@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Question, Paper, Subject, QuestionFilters, GenerateRequest } from '../types';
+import { Question, Paper, Subject, QuestionFilters, GenerateRequest, User } from '../types';
 import {
   MOCK_MODE,
   mockGetSubjects,
@@ -12,11 +12,51 @@ import {
   mockGetPaper,
   mockReplacePaperQuestion,
   mockExportPaper,
+  mockLogin,
+  mockRegister,
+  mockGoogleAuth,
 } from './mock';
 
 const BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
 
 const api = axios.create({ baseURL: BASE });
+
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('examgenius_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user: User;
+}
+
+export const registerApi = async (username: string, email: string, password: string): Promise<AuthResponse> => {
+  if (MOCK_MODE) return mockRegister(username, email, password);
+  const res = await api.post<AuthResponse>('/api/auth/register', { username, email, password });
+  return res.data;
+};
+
+export const loginApi = async (username_or_email: string, password: string): Promise<AuthResponse> => {
+  if (MOCK_MODE) return mockLogin(username_or_email, password);
+  const res = await api.post<AuthResponse>('/api/auth/login', { username_or_email, password });
+  return res.data;
+};
+
+export const googleAuthApi = async (id_token: string): Promise<AuthResponse> => {
+  if (MOCK_MODE) return mockGoogleAuth(id_token);
+  const res = await api.post<AuthResponse>('/api/auth/google', { id_token });
+  return res.data;
+};
+
+export const getMeApi = async (): Promise<User> => {
+  const res = await api.get<User>('/api/auth/me');
+  return res.data;
+};
 
 export const getSubjects = async (): Promise<Subject[]> => {
   if (MOCK_MODE) return mockGetSubjects();

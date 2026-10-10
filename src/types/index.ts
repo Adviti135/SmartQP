@@ -1,3 +1,10 @@
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  is_google: boolean;
+}
+
 export interface Question {
   id: string;
   subject: string;
