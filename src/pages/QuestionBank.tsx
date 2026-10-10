@@ -278,6 +278,7 @@ export const QuestionBank: React.FC = () => {
         questions
       );
 
+
       const newQuestions = result.questions.filter(
         question => !question.isDuplicate
       );

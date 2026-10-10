@@ -146,7 +146,7 @@ export const PdfQuestionImport: React.FC<PdfQuestionImportProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={resetAndClose} title="Extract & Import Questions from Multiple PDFs" size="xl">
+    <Modal isOpen={isOpen} onClose={resetAndClose} title="Extract & Import Questions from Multiple PDFs" size="lg">
       <div className="space-y-5">
         {/* Subject & Upload Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
@@ -262,14 +262,13 @@ export const PdfQuestionImport: React.FC<PdfQuestionImportProps> = ({
                   <div
                     key={q.tempId}
                     onClick={() => toggleSelect(idx)}
-                    className={`p-3 text-sm flex items-start gap-3 cursor-pointer transition-colors ${
-                      isSelected ? 'bg-indigo-50/50' : 'hover:bg-gray-50'
-                    }`}
+                    className={`p-3 text-sm flex items-start gap-3 cursor-pointer transition-colors ${isSelected ? 'bg-indigo-50/50' : 'hover:bg-gray-50'
+                      }`}
                   >
                     <input
                       type="checkbox"
                       checked={isSelected}
-                      onChange={() => {}}
+                      onChange={() => { }}
                       className="mt-1 rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4"
                     />
                     <div className="flex-1 space-y-1">
