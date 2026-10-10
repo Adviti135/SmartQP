@@ -60,7 +60,7 @@ export const Login: React.FC = () => {
     setLoading(true);
     try {
       await login(loginEmail.trim(), loginPassword);
-      addToast('Welcome back to ExamGenius AI!', 'success');
+      addToast('Welcome back to SmartQP!', 'success');
       navigate('/');
     } catch (err: any) {
       setErrorMsg(formatFirebaseError(err));
@@ -91,7 +91,7 @@ export const Login: React.FC = () => {
     setLoading(true);
     try {
       await signup(signupUsername.trim(), signupEmail.trim(), signupPassword);
-      addToast('Account created successfully with Firebase! Welcome to ExamGenius AI.', 'success');
+      addToast('Account created successfully with Firebase! Welcome to SmartQP.', 'success');
       navigate('/');
     } catch (err: any) {
       setErrorMsg(formatFirebaseError(err));
@@ -122,7 +122,7 @@ export const Login: React.FC = () => {
           <BookOpen className="w-8 h-8" />
         </div>
         <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-          ExamGenius AI
+          SmartQP
         </h1>
         <p className="text-sm font-medium text-indigo-600 flex items-center justify-center gap-1">
           <Sparkles className="w-4 h-4" />

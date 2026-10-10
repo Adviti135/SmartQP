@@ -25,7 +25,7 @@ from backend.auth import (
 # Initialize DB tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="ExamGenius AI API", version="1.0.0")
+app = FastAPI(title="SmartQP API", version="1.0.0")
 
 # Enable CORS for frontend Vite server
 app.add_middleware(
@@ -38,7 +38,7 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to ExamGenius AI API", "status": "active"}
+    return {"message": "Welcome to SmartQP API", "status": "active"}
 
 # AUTH ENDPOINTS
 

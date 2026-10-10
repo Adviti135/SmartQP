@@ -32,7 +32,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <div className="p-1.5 bg-indigo-600 rounded-lg text-white">
               <BookOpen className="w-5 h-5" />
             </div>
-            <span>ExamGenius AI</span>
+            <span>SmartQP</span>
           </Link>
           
           {/* Desktop nav */}

@@ -32,9 +32,9 @@ export const Dashboard: React.FC = () => {
       <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 rounded-2xl p-8 text-white">
         <div className="flex items-center gap-3 mb-3">
           <BookOpen className="w-10 h-10" />
-          <h1 className="text-3xl font-bold">SmartExam</h1>
+          <h1 className="text-3xl font-bold">SmartQP</h1>
         </div>
-        <p className="text-indigo-100 text-lg">Smart Exam Question Paper Organizer for VTU Engineering</p>
+        <p className="text-indigo-100 text-lg">Intelligent Question Paper Generator & Organizer for VTU Engineering</p>
       </div>
 
       {/* Stats */}
