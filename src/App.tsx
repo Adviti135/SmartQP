@@ -8,7 +8,7 @@ import { ToastContainer } from './components/ToastContainer';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { QuestionBank } from './pages/QuestionBank';
-import { GeneratePaper } from './pages/GeneratePaper';
+import GeneratePaper from './pages/GeneratePaper';
 import { PaperView } from './pages/PaperView';
 
 function App() {
