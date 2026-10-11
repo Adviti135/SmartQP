@@ -24,3 +24,24 @@ SmartQP is an intelligent, modern web application designed to help educators cre
 - [FastAPI](https://fastapi.tiangolo.com/) + Python (API Layer)
 - SQLite / SQLAlchemy (Database)
 ## 🚀 Getting Started
+### Prerequisites
+- Node.js (v18+ recommended)
+- Python 3.9+
+- A Firebase Project (for Authentication)
+### 1. Frontend Setup
+Clone the repository and install dependencies:
+```bash
+git clone https://github.com/Adviti135/SmartQP.git
+cd SmartQP
+npm install
+```
+Start the Vite development server:
+```bash
+npm run dev
+```
+### 2. Backend Setup (FastAPI)
+In a new terminal window, navigate to the project root and install the required Python packages:
+```bash
+pip install -r backend/requirements.txt
+```
+
