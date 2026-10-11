@@ -20,9 +20,11 @@ export interface Question {
   duplicateOf?: string;
 }
 
+export type DifficultyProfile = 'easy' | 'medium' | 'hard' | 'balanced';
+
 export interface GenerateRequest {
   subject: string;
-  difficultyProfile: 'easy' | 'moderate' | 'difficult';
+  difficultyProfile: DifficultyProfile;
 }
 
 export interface PaperQuestion {
@@ -52,6 +54,7 @@ export interface Paper {
   subject: string;
   title: string;
   totalMarks: number;
+  difficultyProfile?: DifficultyProfile;
   sections: PaperSection[];
   isValid: boolean;
   conflicts: Conflict[];

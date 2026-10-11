@@ -2,7 +2,7 @@
 // Toggle MOCK_MODE to false to use the real FastAPI backend
 export const MOCK_MODE = true;
 
-import { Question, Paper, Subject, QuestionFilters, GenerateRequest } from '../types';
+import { Question, Paper, Subject, QuestionFilters, GenerateRequest, PaperSection, Conflict, PaperQuestion } from '../types';
 
 const delay = (ms = 300) => new Promise(res => setTimeout(res, ms));
 
@@ -396,7 +396,7 @@ const MOCK_CONFLICT_PAPER: Paper = {
   ],
 };
 
-let mockQuestions: Question[] = [];
+let mockQuestions: Question[] = [...MOCK_QUESTIONS];
 
 export const mockDeleteAllQuestions = async (): Promise<void> => {
   await delay();
@@ -450,8 +450,93 @@ export const mockDeleteQuestion = async (id: string): Promise<void> => {
 
 export const mockGeneratePaper = async (req: GenerateRequest): Promise<Paper> => {
   await delay(800);
-  if (req.difficultyProfile === 'difficult') return MOCK_CONFLICT_PAPER;
-  const paper = { ...MOCK_VALID_PAPER, id: `paper_${Date.now()}`, subject: req.subject };
+  
+  const sections: PaperSection[] = [];
+  const conflicts: Conflict[] = [];
+  let isValid = true;
+  
+  // Sort questions by difficulty match
+  const sortForDiff = (qs: Question[]) => {
+    return qs.sort((a, b) => {
+      const getScore = (q: Question) => {
+        if (req.difficultyProfile === 'easy') return q.bloomLevel <= 2 ? 1 : 0;
+        if (req.difficultyProfile === 'medium') return q.bloomLevel === 3 ? 1 : 0;
+        if (req.difficultyProfile === 'hard') return q.bloomLevel >= 4 ? 1 : 0;
+        return 0; // balanced: don't prioritize specific ones
+      };
+      // For balanced, we could shuffle, but stable sort is fine for a mock
+      return getScore(b) - getScore(a);
+    });
+  };
+
+  let globalQNum = 1;
+
+  for (let m = 1; m <= 5; m++) {
+    // Filter questions for this module, EXCLUDE L6 completely
+    let modQs = mockQuestions.filter(q => q.subject === req.subject && q.module === m && q.bloomLevel < 6);
+    modQs = sortForDiff(modQs);
+    
+    const buildOption = (qNum: number): PaperQuestion[] => {
+      const selected: PaperQuestion[] = [];
+      let currentMarks = 0;
+      const targetMarks = 20;
+      
+      const available10 = modQs.filter(q => q.marks === 10);
+      const available5 = modQs.filter(q => q.marks === 5);
+      
+      // Try to pick one 10-mark
+      if (available10.length > 0) {
+        const q = available10.shift()!;
+        modQs = modQs.filter(x => x.id !== q.id); // remove from pool
+        selected.push({ questionNumber: `${qNum}a`, question: q, marks: 10 });
+        currentMarks += 10;
+      }
+      
+      // Try to pick two 5-marks
+      while (currentMarks < targetMarks && available5.length > 0) {
+        const q = available5.shift()!;
+        modQs = modQs.filter(x => x.id !== q.id);
+        const sub = String.fromCharCode('a'.charCodeAt(0) + selected.length);
+        selected.push({ questionNumber: `${qNum}${sub}`, question: q, marks: 5 });
+        currentMarks += 5;
+      }
+      
+      if (currentMarks < targetMarks) {
+        isValid = false;
+        conflicts.push({
+          type: 'insufficient_questions',
+          module: m,
+          requiredMarks: targetMarks - currentMarks,
+          requiredBloomLevel: req.difficultyProfile === 'hard' ? 5 : (req.difficultyProfile === 'medium' ? 3 : 2),
+          message: `Not enough eligible questions in Module ${m} to form 20 marks (L6 excluded). Available marks: ${currentMarks}.`
+        });
+      }
+      
+      return selected;
+    };
+    
+    const option1 = buildOption(globalQNum++);
+    const option2 = buildOption(globalQNum++);
+    
+    sections.push({
+      module: m,
+      totalMarks: 20,
+      questions: [...option1, ...option2]
+    });
+  }
+  
+  const paper: Paper = {
+    id: `paper_${Date.now()}`,
+    subject: req.subject,
+    title: `B.E. / B.Tech Degree Examination — ${req.subject}`,
+    totalMarks: 100,
+    difficultyProfile: req.difficultyProfile,
+    sections,
+    isValid,
+    conflicts,
+    createdAt: new Date().toISOString()
+  };
+  
   mockPapers.push(paper);
   return paper;
 };
@@ -462,9 +547,16 @@ export const mockGetPaper = async (id: string): Promise<Paper> => {
   return p;
 };
 
-export const mockReplacePaperQuestion = async (paperId: string, _slot: string, _questionId: string): Promise<Paper> => {
+export const mockReplacePaperQuestion = async (paperId: string, slot: string, questionId: string): Promise<Paper> => {
   await delay(500);
-  return MOCK_VALID_PAPER;
+  const paper = mockPapers.find(p => p.id === paperId);
+  const replacement = mockQuestions.find(q => q.id === questionId && q.bloomLevel < 6);
+  if (!paper || !replacement) throw new Error("Paper or valid non-L6 replacement question not found");
+  
+  // Just a simple mock that returns the original paper for now, 
+  // but in reality we would deeply update the section -> question array.
+  // We've enforced L6 exclusion in the mock find above.
+  return paper;
 };
 
 export const mockExportPaper = async (_paperId: string): Promise<Blob> => {

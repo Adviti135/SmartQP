@@ -28,7 +28,7 @@ type GeneratedPaper = {
 const API_URL = "http://127.0.0.1:8000";
 
 import { generatePaper, getSubjects } from "../api";
-import { Paper, Subject } from "../types";
+import { Paper, Subject, DifficultyProfile, Conflict } from "../types";
 
 export default function GeneratePaper() {
   const [paper, setPaper] = useState<GeneratedPaper | null>(null);
@@ -36,6 +36,9 @@ export default function GeneratePaper() {
   const [error, setError] = useState("");
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedSubject, setSelectedSubject] = useState("");
+  const [difficulty, setDifficulty] = useState<DifficultyProfile>("balanced");
+  const [generatedDifficulty, setGeneratedDifficulty] = useState("");
+  const [conflicts, setConflicts] = useState<Conflict[]>([]);
 
   // Load subjects on mount
   useEffect(() => {
@@ -55,8 +58,11 @@ export default function GeneratePaper() {
       
       const responsePaper = await generatePaper({ 
         subject: selectedSubject, 
-        difficultyProfile: "moderate" 
+        difficultyProfile: difficulty 
       });
+
+      setGeneratedDifficulty(responsePaper.difficultyProfile || difficulty);
+      setConflicts(responsePaper.conflicts || []);
 
       // Transform backend Paper into GeneratedPaper format
       const generatedModules: PaperModule[] = responsePaper.sections.map((sec) => {
@@ -331,16 +337,29 @@ export default function GeneratePaper() {
 
       <div className="smartqp-actions">
         {subjects.length > 0 && !paper && (
-          <select 
-            className="smartqp-button" 
-            style={{ backgroundColor: "white", color: "black", border: "1px solid #ccc" }}
-            value={selectedSubject} 
-            onChange={(e) => setSelectedSubject(e.target.value)}
-          >
-            {subjects.map(s => (
-              <option key={s.id} value={s.name}>{s.name}</option>
-            ))}
-          </select>
+          <>
+            <select 
+              className="smartqp-button" 
+              style={{ backgroundColor: "white", color: "black", border: "1px solid #ccc" }}
+              value={selectedSubject} 
+              onChange={(e) => setSelectedSubject(e.target.value)}
+            >
+              {subjects.map(s => (
+                <option key={s.id} value={s.name}>{s.name}</option>
+              ))}
+            </select>
+            <select 
+              className="smartqp-button" 
+              style={{ backgroundColor: "white", color: "black", border: "1px solid #ccc" }}
+              value={difficulty} 
+              onChange={(e) => setDifficulty(e.target.value as DifficultyProfile)}
+            >
+              <option value="easy">Easy (L1-L2)</option>
+              <option value="medium">Medium (L3)</option>
+              <option value="hard">Hard (L4-L5)</option>
+              <option value="balanced">Balanced (L1-L5)</option>
+            </select>
+          </>
         )}
 
         <button
@@ -376,6 +395,17 @@ export default function GeneratePaper() {
 
       {error && <div className="smartqp-error">{error}</div>}
 
+      {conflicts.length > 0 && (
+        <div className="smartqp-error" style={{ backgroundColor: '#fffbeb', color: '#b45309', border: '1px solid #fcd34d' }}>
+          <strong>Warning: Insufficient Questions</strong>
+          <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
+            {conflicts.map((c, i) => (
+              <li key={i}>{c.message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {!paper && !loading && !error && (
         <div className="smartqp-empty">
           Click <strong>Generate Question Paper</strong> to create your paper.
@@ -389,6 +419,9 @@ export default function GeneratePaper() {
             <p>MODEL QUESTION PAPER</p>
             <p>Subject: __________________________</p>
             <p>Semester: __________ &nbsp; Subject Code: __________</p>
+            <p style={{ marginTop: '8px', fontStyle: 'italic' }}>
+              Difficulty: <span style={{ textTransform: 'capitalize' }}>{generatedDifficulty}</span>
+            </p>
           </header>
 
           <div className="smartqp-details">
